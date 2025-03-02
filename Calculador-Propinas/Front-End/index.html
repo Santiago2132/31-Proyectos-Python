@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Propinas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        .container {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+        .resultado {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de Propinas</h1>
+        <label for="total_factura">Total de la factura:</label>
+        <input type="number" id="total_factura" placeholder="Ej: 100.00">
+        <label for="porcentaje_propina">Porcentaje de propina:</label>
+        <input type="number" id="porcentaje_propina" placeholder="Ej: 15">
+        <button onclick="calcularPropina()">Calcular</button>
+        <div class="resultado">
+            <p>Propina: <span id="propina"></span></p>
+            <p>Total con propina: <span id="total_con_propina"></span></p>
+        </div>
+    </div>
+
+    <script>
+        async function calcularPropina() {
+            const totalFactura = document.getElementById('total_factura').value;
+            const porcentajePropina = document.getElementById('porcentaje_propina').value;
+
+            if (!totalFactura || !porcentajePropina) {
+                alert('Por favor, completa todos los campos.');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:4000/calcular_propina', {//Era por el puerto
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        total_factura: totalFactura,
+                        porcentaje_propina: porcentajePropina
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                document.getElementById('propina').textContent = `$${data.propina}`;
+                document.getElementById('total_con_propina').textContent = `$${data.total_con_propina}`;
+            } catch (error) {
+                console.error('Error al calcular la propina:', error);
+                alert('Hubo un error al calcular la propina. Por favor, intenta de nuevo.');
+            }
+        }
+    </script>
+</body>
+</html>
